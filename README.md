@@ -1,6 +1,6 @@
 # Llama Server
 
-This project hosts a GPU-enabled Llama server container using llama.cpp and . It is designed to quickly set up and serve LLM models using Docker and NVIDIA CUDA. The server configuration is flexible via environment variables and configuration files.
+This project hosts a GPU-enabled Llama server container using llama.cpp and llama-swap. It is designed to quickly set up and serve LLM models using Docker and NVIDIA CUDA. The server configuration is flexible via environment variables and configuration files.
 
 ## Features
 
