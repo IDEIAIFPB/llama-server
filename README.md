@@ -24,18 +24,6 @@ By default, the service mounts the configuration file located at `./config/simpl
 
 If you wish to use a different configuration file, you can do so by setting the `CONFIG_FILE` environment variable in the `.env` file.
 
-# Start all services
-make up
-
-# Bring services down
-make down
-
-# View logs
-make logs
-
-# Check GPU access (verifies NVIDIA GPU access in a test container)
-make check-gpu
-
 ### Running the Project
 
 To build and run the containers, use the provided Makefile or Docker Compose commands.
