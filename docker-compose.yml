@@ -1,0 +1,54 @@
+services:
+  llama-swap:
+    container_name: llama-swap-cuda
+    image: ghcr.io/mostlygeek/llama-swap:cuda
+    restart: unless-stopped
+
+    ports:
+      - "9000:8080"
+
+    volumes:
+      - models_volume:/models
+      - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+      - ${CONFIG_FILE:-./config/simple.yaml}:/app/config.yaml:ro
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    runtime: nvidia
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+
+    entrypoint: [ "bash", "/docker-entrypoint.sh" ]
+
+    networks:
+      - llama-swap-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: llama-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - llama-swap
+    networks:
+      - llama-swap-network
+
+volumes:
+  models_volume:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./models
+
+networks:
+  llama-swap-network:
+    driver: bridge

@@ -1,0 +1,33 @@
+healthCheckTimeout: 60
+
+logLevel: info
+
+models:
+  "qwen-14b":
+    cmd: >
+      llama-server --port 8001 --m ./models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
+    env:
+      - "CUDA_VISIBLE_DEVICES=0"
+    proxy: http://127.0.0.1:8001
+    aliases:
+      - "qwen2.5-coder:14b"
+    checkEndpoint: /health
+    ttl: 5
+    useModelName: "qwen:qwq"
+
+  "qwen-unlisted":
+    unlisted: true
+    cmd: llama-server --port 8002 -m Llama-3.2-1B-Instruct-Q4_K_M.gguf -ngl 0
+
+  "docker-llama":
+    proxy: "http://127.0.0.1:9790"
+    cmd: >
+      docker run --name dockertest
+      --init --rm -p 9790:8080 -v /mnt/nvme/models:/models
+      ghcr.io/ggerganov/llama.cpp:server
+      --model '/models/Qwen2.5-Coder-0.5B-Instruct-Q4_K_M.gguf'
+
+profiles:
+  coding:
+    - "llama"
+    - "qwen-unlisted"
