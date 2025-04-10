@@ -1,11 +1,13 @@
+name: llama-server
+
 services:
-  llama-server-swap:
-    container_name: llama-server-swap
+  server-swap:
+    container_name: server-swap
     image: ghcr.io/mostlygeek/llama-swap:cuda
     build: .
     restart: unless-stopped
-    ports:
-      - "8080:8080"
+    expose:
+      - ${HOST_PORT}
 
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
@@ -19,26 +21,26 @@ services:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=all
       - VIRTUAL_HOST=${HOST_URL}
+      - VIRTUAL_PORT=${HOST_PORT}
 
     volumes:
       - models-data:/models
       - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
-      - ${CONFIG_FILE:-./config/simple.yaml}:/app/config.yaml:ro
+      - ${LLAMA_SWAP_CONFIG_FILE}:/app/config.yaml:ro
 
     entrypoint: ["/bin/bash", "-c", "/docker-entrypoint.sh"]
 
     labels:
+      - "diun.enable=true"
       - "com.github.nginxproxy.docker-nginx-proxy=true"
       - "com.github.nginxproxy.nginx-proxy.alias=${HOST_URL}"
       - "com.github.nginxproxy.nginx-proxy.port=8080"
     networks:
-      - llama-server-swap-network
-    depends_on:
-      - nginx-proxy
+      - llama-server-network
 
   nginx-proxy:
     image: nginxproxy/nginx-proxy:alpine
-    container_name: llama-server-nginx-proxy
+    container_name: nginx-proxy
     restart: unless-stopped
     ports:
       - "80:80"
@@ -47,7 +49,27 @@ services:
     environment:
       - DEFAULT_HOST=${HOST_URL}
     networks:
-      - llama-server-swap-network
+      - llama-server-network
+    depends_on:
+      - server-swap
+
+  diun:
+    image: crazymax/diun:latest
+    container_name: diun
+    restart: unless-stopped
+    command: serve
+    volumes:
+      - "./data:/data"
+      - "./config/diun/default.yml:/diun.yml:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - "TZ=Europe/Paris"
+      - "LOG_LEVEL=info"
+      - "LOG_JSON=false"
+    networks:
+      - llama-server-network
+    depends_on:
+      - server-swap
 
 volumes:
   models-data:
@@ -58,5 +80,5 @@ volumes:
       device: ./models
 
 networks:
-  llama-server-swap-network:
+  llama-server-network:
     driver: bridge
