@@ -1,19 +1,14 @@
 services:
-  llama-swap:
-    container_name: llama-swap-cuda
+  llama-server-swap:
+    container_name: llama-server-swap
     image: ghcr.io/mostlygeek/llama-swap:cuda
+    build: .
     restart: unless-stopped
-
     ports:
-      - "9000:8080"
-
-    volumes:
-      - models_volume:/models
-      - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
-      - ${CONFIG_FILE:-./config/simple.yaml}:/app/config.yaml:ro
+      - "8080:8080"
 
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9000/" ]
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -23,26 +18,39 @@ services:
     environment:
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=all
+      - VIRTUAL_HOST=${HOST_URL}
 
-    entrypoint: [ "bash", "/docker-entrypoint.sh" ]
+    volumes:
+      - models-data:/models
+      - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+      - ${CONFIG_FILE:-./config/simple.yaml}:/app/config.yaml:ro
 
+    entrypoint: ["/bin/bash", "-c", "/docker-entrypoint.sh"]
+
+    labels:
+      - "com.github.nginxproxy.docker-nginx-proxy=true"
+      - "com.github.nginxproxy.nginx-proxy.alias=${HOST_URL}"
+      - "com.github.nginxproxy.nginx-proxy.port=8080"
     networks:
-      - llama-swap-network
+      - llama-server-swap-network
+    depends_on:
+      - nginx-proxy
 
-  nginx:
-    image: nginx:alpine
-    container_name: llama-nginx
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    container_name: llama-server-nginx-proxy
+    restart: unless-stopped
     ports:
       - "80:80"
     volumes:
-      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - llama-swap
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - DEFAULT_HOST=${HOST_URL}
     networks:
-      - llama-swap-network
+      - llama-server-swap-network
 
 volumes:
-  models_volume:
+  models-data:
     driver: local
     driver_opts:
       type: none
@@ -50,5 +58,5 @@ volumes:
       device: ./models
 
 networks:
-  llama-swap-network:
+  llama-server-swap-network:
     driver: bridge
