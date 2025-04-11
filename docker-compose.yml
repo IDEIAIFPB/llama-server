@@ -22,6 +22,7 @@ services:
       - NVIDIA_DRIVER_CAPABILITIES=all
       - VIRTUAL_HOST=${HOST_URL}
       - VIRTUAL_PORT=${HOST_PORT}
+      - PROXY_READ_TIMEOUT=${HOST_READ_TIMEOUT}
 
     volumes:
       - models-data:/models
