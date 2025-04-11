@@ -59,7 +59,7 @@ services:
     restart: unless-stopped
     command: serve
     volumes:
-      - "./data:/data"
+      - diun-data:/data
       - "./config/diun/default.yml:/diun.yml:ro"
       - "/var/run/docker.sock:/var/run/docker.sock"
     environment:
@@ -78,6 +78,8 @@ volumes:
       type: none
       o: bind
       device: ./models
+  diun-data:
+    driver: local
 
 networks:
   llama-server-network:

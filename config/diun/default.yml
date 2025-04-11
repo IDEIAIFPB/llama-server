@@ -1,8 +1,7 @@
 watch:
   workers: 20
   schedule: "0 */6 * * *"
-  firstCheckNotif: false
+  firstCheckNotif: true
 
 providers:
-  docker:
-    watchByDefault: false
+  docker: {}

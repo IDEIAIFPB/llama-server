@@ -26,37 +26,35 @@ If you wish to use a different configuration file, you can do so by setting the 
 
 ### Running the Project
 
-To build and run the containers, use the provided Makefile or Docker Compose commands.
+To build and run the containers, use the provided Makefile commands. You can instead, use the docker compose commands directly, but the Makefile simplify some of the most common commands.
 
-**Using Makefile:**
-
-```bash
-# Start all services
-make up
-
-# Bring services down
-make down
-
-# View logs
-make logs
-
-# Check GPU access (verifies NVIDIA GPU access in a test container)
-make check-gpu
+```makefile
+up            # Start services
+down          # Stop all services
+down-volumes  # Stop all services and remove volumes
+update        # Update container images
+prune         # Prune unused images, containers and volumes
+restart       # Rebuild and restart
+logs          # Stream all logs
+build         # Force rebuild all images
+check-gpu     # Verify GPU access
 ```
-
-Or, using Docker Compose directly:
-
-```bash
-docker compose up --build
-```
-
-Access the services:
-- **Llama Swap Service:** Available on [http://localhost:9000](http://localhost:9000) (via port mapping)
-- **NGINX Reverse Proxy:** Available on [http://localhost](http://localhost)
 
 ### Health Checks
 
 Both the Llama server and NGINX have health-checks configured. If the health-check fails, Docker Compose will restart the container automatically.
+
+## Local Testing
+
+You can access the active Llama server via:
+
+- **http://llama-server.local** (proxied by `nginx-proxy`)
+
+Make sure to add this to your `/etc/hosts`:
+
+```bash
+127.0.0.1 llama-server.local
+```
 
 ## Troubleshooting
 

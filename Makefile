@@ -1,14 +1,20 @@
-.PHONY: up down restart build logs check-gpu
+.PHONY: up down down-volumes update prune restart logs build check-gpu
 PROJECT_NAME=llama-server
-
-down:
-	docker compose -p $(PROJECT_NAME) down
 
 up:
 	docker compose -p $(PROJECT_NAME) up -d
 
+down:
+	docker compose -p $(PROJECT_NAME) down
+
+down-volumes:
+	docker compose -p $(PROJECT_NAME) down --volumes
+
 update:
-	docker compose -p $(PROJECT_NAME) pull
+	docker-compose pull && docker-compose up -d
+
+prune:
+	docker system prune -a --volumes -f
 
 restart:
 	docker compose -p $(PROJECT_NAME) down && docker compose -p $(PROJECT_NAME) up -d
