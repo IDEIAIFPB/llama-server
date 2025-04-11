@@ -1,33 +1,139 @@
-healthCheckTimeout: 60
-
+healthCheckTimeout: 300
 logLevel: info
 
 models:
-  "qwen-14b":
+  qwen2.5-14b:
+    proxy: http://127.0.0.1:9000
     cmd: >
-      llama-server --port 8001 --m ./models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
-    env:
-      - "CUDA_VISIBLE_DEVICES=0"
-    proxy: http://127.0.0.1:8001
-    aliases:
-      - "qwen2.5-coder:14b"
-    checkEndpoint: /health
-    ttl: 5
-    useModelName: "qwen:qwq"
-
-  "qwen-unlisted":
-    unlisted: true
-    cmd: llama-server --port 8002 -m Llama-3.2-1B-Instruct-Q4_K_M.gguf -ngl 0
-
-  "docker-llama":
-    proxy: "http://127.0.0.1:9790"
+      /app/llama-server 
+      --model /models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
+      --ctx-size 4096
+      --temp 0.7
+      --top-p 0.8
+      --top-k 20
+      --port 9000
+      --gpu-layers 49
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 180
+  
+  qwen2.5-14b-draft:
+    proxy: http://127.0.0.1:9000
     cmd: >
-      docker run --name dockertest
-      --init --rm -p 9790:8080 -v /mnt/nvme/models:/models
-      ghcr.io/ggerganov/llama.cpp:server
-      --model '/models/Qwen2.5-Coder-0.5B-Instruct-Q4_K_M.gguf'
+      /app/llama-server 
+      --model /models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
+      --ctx-size 4096
+      --temp 0.7
+      --top-p 0.8
+      --top-k 20
+      --gpu-layers 49
+      --model-draft /models/Qwen2.5-Coder-0.5B-Instruct-Q8_0.gguf
+      --ctx-size-draft 4096
+      --gpu-layers-draft 25
+      --draft-max 16
+      --draft-min 4
+      --draft-p-min 0.4
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 180
 
-profiles:
-  coding:
-    - "llama"
-    - "qwen-unlisted"
+  qwen2.5-32b-q2:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      /app/llama-server 
+      --model /models/Qwen2.5-Coder-32B-Instruct-IQ2_XS.gguf
+      --ctx-size 4096
+      --temp 0.7
+      --top-p 0.8
+      --top-k 20
+      --gpu-layers 65
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 180
+
+  qwen2.5-32b-q2-draft:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      /app/llama-server 
+      --model /models/Qwen2.5-Coder-32B-Instruct-IQ2_XS.gguf
+      --ctx-size 4096
+      --temp 0.7
+      --top-p 0.8
+      --top-k 20
+      --gpu-layers 65
+      --model-draft /models/Qwen2.5-Coder-0.5B-Instruct-Q4_K_L.gguf
+      --ctx-size-draft 4096
+      --gpu-layers-draft 25
+      --draft-max 16
+      --draft-min 4
+      --draft-p-min 0.4
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 180
+
+  qwen2.5-32b:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      /app/llama-server 
+      --model /models/Qwen2.5-Coder-32B-Instruct-Q4_K_L.gguf
+      --ctx-size 4096
+      --temp 0.7
+      --top-p 0.8
+      --top-k 20
+      --gpu-layers 32
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 180
+
+  qwen2.5-32b-draft:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      /app/llama-server 
+      --model /models/Qwen2.5-Coder-32B-Instruct-Q4_K_L.gguf
+      --ctx-size 4096
+      --temp 0.7
+      --top-p 0.8
+      --top-k 20
+      --gpu-layers 30
+      --model-draft /models/Qwen2.5-Coder-0.5B-Instruct-Q8_0.gguf
+      --ctx-size-draft 4096
+      --gpu-layers-draft 25
+      --draft-max 16
+      --draft-min 4
+      --draft-p-min 0.4
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 180
+  
+  gemma3-12b:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      /app/llama-server 
+      --model /models/gemma-3-12b-it-q4_0_s.gguf
+      --ctx-size 4096
+      --top-p 0.95
+      --top-k 64
+      --gpu-layers 49
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 180
