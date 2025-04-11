@@ -34,7 +34,7 @@ services:
       - "diun.enable=true"
       - "com.github.nginxproxy.docker-nginx-proxy=true"
       - "com.github.nginxproxy.nginx-proxy.alias=${HOST_URL}"
-      - "com.github.nginxproxy.nginx-proxy.port=8080"
+      - "com.github.nginxproxy.nginx-proxy.port=${HOST_PORT}"
     networks:
       - llama-server-network
 

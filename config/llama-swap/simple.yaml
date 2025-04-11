@@ -3,13 +3,13 @@ logRequests: true
 
 models:
   qwen2.5-14b:
-    proxy: http://127.0.0.1:9999
+    proxy: http://127.0.0.1:9000
     cmd: >
       /app/llama-server 
       --model /models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
       --ctx-size 2048
       --temp 0.05
-      --port 9999
+      --port 9000
       --gpu-layers 999
       --cache-type-k q8_0
       --cache-type-v q8_0
@@ -18,7 +18,7 @@ models:
     ttl: 60
 
   qwen2.5-14b-draft:
-    proxy: http://127.0.0.1:9999
+    proxy: http://127.0.0.1:9000
     cmd: >
       /app/llama-server 
       --model /models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
@@ -31,7 +31,7 @@ models:
       --draft-min 4
       --draft-p-min 0.4
       --temp 0.05
-      --port 9999
+      --port 9000
       --cache-type-k q8_0
       --cache-type-v q8_0
       --flash-attn
@@ -39,13 +39,13 @@ models:
     ttl: 60
   
   gemma3-12b:
-    proxy: http://127.0.0.1:9999
+    proxy: http://127.0.0.1:9000
     cmd: >
       /app/llama-server 
       --model /models/gemma-3-12b-it-q4_0_s.gguf
       --ctx-size 2048
       --temp 0.05
-      --port 9999
+      --port 9000
       --gpu-layers 999
       --cache-type-k q8_0
       --cache-type-v q8_0
