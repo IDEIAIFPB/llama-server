@@ -11,7 +11,7 @@ down-volumes:
 	docker compose -p $(PROJECT_NAME) down --volumes
 
 update:
-	docker-compose pull && docker-compose up -d
+	docker compose -p $(PROJECT_NAME) pull && docker compose -p $(PROJECT_NAME) up -d
 
 prune:
 	docker system prune -a --volumes -f

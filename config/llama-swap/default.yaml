@@ -17,7 +17,7 @@ models:
       --cache-type-v q8_0
       --flash-attn
       --no-webui
-    ttl: 180
+    ttl: 600
   
   qwen2.5-14b-draft:
     proxy: http://127.0.0.1:9000
@@ -40,7 +40,7 @@ models:
       --cache-type-v q8_0
       --flash-attn
       --no-webui
-    ttl: 180
+    ttl: 600
 
   qwen2.5-32b-q2:
     proxy: http://127.0.0.1:9000
@@ -57,7 +57,7 @@ models:
       --cache-type-v q8_0
       --flash-attn
       --no-webui
-    ttl: 180
+    ttl: 600
 
   qwen2.5-32b-q2-draft:
     proxy: http://127.0.0.1:9000
@@ -80,7 +80,7 @@ models:
       --cache-type-v q8_0
       --flash-attn
       --no-webui
-    ttl: 180
+    ttl: 600
 
   qwen2.5-32b:
     proxy: http://127.0.0.1:9000
@@ -97,7 +97,7 @@ models:
       --cache-type-v q8_0
       --flash-attn
       --no-webui
-    ttl: 180
+    ttl: 600
 
   qwen2.5-32b-draft:
     proxy: http://127.0.0.1:9000
@@ -120,7 +120,7 @@ models:
       --cache-type-v q8_0
       --flash-attn
       --no-webui
-    ttl: 180
+    ttl: 600
   
   gemma3-12b:
     proxy: http://127.0.0.1:9000
@@ -136,4 +136,42 @@ models:
       --cache-type-v q8_0
       --flash-attn
       --no-webui
-    ttl: 180
+    ttl: 600
+
+  gemma3-27b:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      /app/llama-server 
+      --model /models/gemma-3-27b-it-q4_0_s.gguf
+      --ctx-size 4096
+      --top-p 0.95
+      --top-k 64
+      --gpu-layers 37
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 600
+
+  gemma3-27b-draft:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      /app/llama-server 
+      --model /models/gemma-3-27b-it-q4_0_s.gguf
+      --ctx-size 4096
+      --top-p 0.95
+      --top-k 64
+      --gpu-layers 32
+      --model-draft /models/gemma-3-1b-it-q4_0_s.gguf
+      --ctx-size-draft 4096
+      --gpu-layers-draft 27
+      --draft-max 16
+      --draft-min 4
+      --draft-p-min 0.4
+      --port 9000
+      --cache-type-k q8_0
+      --cache-type-v q8_0
+      --flash-attn
+      --no-webui
+    ttl: 600
