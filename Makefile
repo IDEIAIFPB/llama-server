@@ -1,29 +1,40 @@
 .PHONY: up down down-volumes update prune restart logs build check-gpu
-PROJECT_NAME=llama-server
+
+PROJECT_NAME = llama-server
+
+ifeq ($(platform),cpu)
+  COMPOSE_FILE = docker-compose.cpu.yml
+else ifeq ($(platform),cuda)
+  COMPOSE_FILE = docker-compose.cuda.yml
+else
+  COMPOSE_FILE = docker-compose.cpu.yml
+endif
+
+COMPOSE_CMD = docker compose -p $(PROJECT_NAME) -f $(COMPOSE_FILE)
 
 up:
-	docker compose -p $(PROJECT_NAME) up -d
+	$(COMPOSE_CMD) up -d
 
 down:
-	docker compose -p $(PROJECT_NAME) down
+	$(COMPOSE_CMD) down
 
 down-volumes:
-	docker compose -p $(PROJECT_NAME) down --volumes
+	$(COMPOSE_CMD) down --volumes
 
 update:
-	docker compose -p $(PROJECT_NAME) pull && docker compose -p $(PROJECT_NAME) up -d
+	$(COMPOSE_CMD) pull && $(COMPOSE_CMD) up -d
 
 prune:
 	docker system prune -a --volumes -f
 
 restart:
-	docker compose -p $(PROJECT_NAME) down && docker compose -p $(PROJECT_NAME) up -d
+	$(COMPOSE_CMD) down && $(COMPOSE_CMD) up -d
 
 logs:
-	docker compose -p $(PROJECT_NAME) logs -f
+	$(COMPOSE_CMD) logs -f
 
 build:
-	docker compose -p $(PROJECT_NAME) build --no-cache
+	$(COMPOSE_CMD) build --no-cache
 
 check-gpu:
 	docker run --rm --runtime=nvidia nvidia/cuda:12.2.0-base-ubuntu22.04 nvidia-smi

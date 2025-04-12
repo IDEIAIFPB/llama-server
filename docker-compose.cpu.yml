@@ -1,0 +1,84 @@
+name: llama-server
+
+services:
+  server-swap:
+    container_name: server-swap
+    image: ghcr.io/mostlygeek/llama-swap:cpu
+    build: .
+    restart: unless-stopped
+    expose:
+      - ${HOST_PORT}
+
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+    environment:
+      - VIRTUAL_HOST=${HOST_URL}
+      - VIRTUAL_PORT=${HOST_PORT}
+      - PROXY_READ_TIMEOUT=${HOST_READ_TIMEOUT}
+
+    volumes:
+      - models-data:/models
+      - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
+      - ${LLAMA_SWAP_CONFIG_FILE}:/app/config.yaml:ro
+
+    entrypoint: ["/bin/bash", "-c", "/docker-entrypoint.sh"]
+
+    labels:
+      - "diun.enable=true"
+      - "com.github.nginxproxy.docker-nginx-proxy=true"
+      - "com.github.nginxproxy.nginx-proxy.alias=${HOST_URL}"
+      - "com.github.nginxproxy.nginx-proxy.port=${HOST_PORT}"
+    networks:
+      - llama-server-network
+
+  nginx-proxy:
+    image: nginxproxy/nginx-proxy:alpine
+    container_name: nginx-proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+    environment:
+      - DEFAULT_HOST=${HOST_URL}
+    networks:
+      - llama-server-network
+    depends_on:
+      - server-swap
+
+  diun:
+    image: crazymax/diun:latest
+    container_name: diun
+    restart: unless-stopped
+    command: serve
+    volumes:
+      - diun-data:/data
+      - "./config/diun/default.yml:/diun.yml:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    environment:
+      - "TZ=Europe/Paris"
+      - "LOG_LEVEL=info"
+      - "LOG_JSON=false"
+    networks:
+      - llama-server-network
+    depends_on:
+      - server-swap
+
+volumes:
+  models-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./models
+  diun-data:
+    driver: local
+
+networks:
+  llama-server-network:
+    driver: bridge
