@@ -22,7 +22,7 @@ services:
       - PROXY_READ_TIMEOUT=${HOST_READ_TIMEOUT}
 
     volumes:
-      - models-data:/models
+      - models-data::/app/models
       - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
       - ${LLAMA_SWAP_CONFIG_FILE}:/app/config.yaml:ro
 
