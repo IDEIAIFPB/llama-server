@@ -1,2 +1,6 @@
 .env
 models/*.gguf
+config/llama-swap/*
+config/diun/*
+!config/llama-swap/default.yaml
+!config/diun/default.yaml

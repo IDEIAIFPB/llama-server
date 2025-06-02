@@ -44,7 +44,7 @@ services:
     container_name: nginx-proxy
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "${SERVER_PORT}:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
     environment:
@@ -78,7 +78,7 @@ volumes:
     driver_opts:
       type: none
       o: bind
-      device: ./models
+      device: ${MODELS_PATH}
   diun-data:
     driver: local
 
