@@ -56,18 +56,12 @@ for model in "${models[@]}"; do
     echo -n "$model,"
 
     # Preload
-    curl --request POST \
+    curl -s --fail \
         --url "$url/v1/chat/completions" \
-        --header 'Content-Type: application/json' \
-        --header 'User-Agent: insomnia/10.1.1' \
-        --data '{
+        -H 'Content-Type: application/json' \
+        -d '{
             "model": "'"$model"'",
-            "messages": [
-                {
-                    "role": "user",
-                    "content": "hi"
-                }
-            ]
+            "messages": [ { "role": "user", "content": "hi" } ]
         }'
 
     for lang in python typescript swift; do
@@ -77,7 +71,7 @@ for model in "${models[@]}"; do
             -d '{
                     "messages": [
                       { "role": "system", "content": "you only write code." },
-                      { "role": "user",   "content": "write snake game in '"$lang"'" }
+                      { "role": "user", "content": "write snake game in '"$lang"'" }
                     ],
                     "top_k": 1,
                     "timings_per_token": true,
