@@ -69,7 +69,7 @@ models:
       ${qwen2_5-coder-args}
       --split-mode none
       --device CUDA0
-      --ctx-size 32786
+      --ctx-size 30000
       --gpu-layers 49
     ttl: 1200
   
@@ -80,7 +80,7 @@ models:
       --model /app/models/Qwen2.5-Coder-14B-Q4_K_M.gguf
       ${qwen2_5-coder-args}
       --device CUDA0
-      --ctx-size 32786
+      --ctx-size 30000
       --gpu-layers 49
       --model-draft /app/models/Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf
       ${qwen1_5b-draft-model-args}
@@ -96,7 +96,7 @@ models:
       --model /app/models/Qwen2.5-Coder-14B-Q4_K_M.gguf
       ${qwen2_5-coder-args}
       --device CUDA0
-      --ctx-size 32786
+      --ctx-size 30000
       --gpu-layers 49
       --model-draft /app/models/Qwen2.5-Coder-0.5B-Instruct-IQ4_XS.gguf
       ${draft-model-args}
