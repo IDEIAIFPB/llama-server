@@ -16,11 +16,6 @@ services:
       retries: 3
       start_period: 60s
 
-    environment:
-      - VIRTUAL_HOST=${HOST_URL}
-      - VIRTUAL_PORT=${HOST_PORT}
-      - PROXY_READ_TIMEOUT=${HOST_READ_TIMEOUT}
-
     volumes:
       - models-data::/app/models
       - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
@@ -30,26 +25,21 @@ services:
 
     labels:
       - "diun.enable=true"
-      - "com.github.nginxproxy.docker-nginx-proxy=true"
-      - "com.github.nginxproxy.nginx-proxy.alias=${HOST_URL}"
-      - "com.github.nginxproxy.nginx-proxy.port=${HOST_PORT}"
     networks:
       - llama-server-network
 
-  nginx-proxy:
-    image: nginxproxy/nginx-proxy:alpine
-    container_name: nginx-proxy
+  nginx:
+    image: nginx:alpine
+    container_name: llama-nginx
     restart: unless-stopped
     ports:
       - "${SERVER_PORT}:80"
     volumes:
-      - /var/run/docker.sock:/tmp/docker.sock:ro
-    environment:
-      - DEFAULT_HOST=${HOST_URL}
-    networks:
-      - llama-server-network
+      - ./config/nginx/default.conf:/etc/nginx/nginx.conf:ro
     depends_on:
       - server-swap
+    networks:
+      - llama-server-network
 
   diun:
     image: crazymax/diun:latest

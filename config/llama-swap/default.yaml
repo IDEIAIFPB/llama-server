@@ -4,6 +4,7 @@ logLevel: info
 macros:
   "server-default": |
     /app/llama-server
+    --threads 8
     --port 9000
     --cache-type-k q8_0
     --cache-type-v q8_0
@@ -18,121 +19,264 @@ macros:
     --top-k 64
     --top-p 0.95
   
+  "qwen2_5-args": |
+    --temp 0.1
+    --top-p 0.8
+    --top-k 20
+    --min-p 0.01
+
   "qwen2_5-coder-args": |
     --temp 0.1
     --top-p 0.8
     --top-k 20
     --min-p 0.01
+  
+  "qwen3-args": |
+    --temp 0.6
+    --top-p 0.95
+    --top-k 20
+    --min-p 0
+    --reasoning-format deepseek
 
   "draft-model-args": |
     --draft-max 16
     --draft-min 4
     --draft-p-min 0.4
 
+  "qwen1_5b-draft-model-args": |
+    --draft-max 8
+    --draft-min 1
+    --draft-p-min 0.4
+
 models:
-  qwen2.5-coder-14b:
+  Qwen2.5-7B:
     proxy: http://127.0.0.1:9000
     cmd: >
       ${server-default}
-      --model /models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
-      --ctx-size 4096
+      --model /app/models/Qwen2.5-7B-Instruct-IQ4_XS.gguf
       ${qwen2_5-coder-args}
+      --split-mode none
+      --device CUDA0
+      --ctx-size 32786
       --gpu-layers 49
-    ttl: 600
+    ttl: 1200
+
+  Qwen2.5-Coder-14B:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Qwen2.5-Coder-14B-Q4_K_M.gguf
+      ${qwen2_5-coder-args}
+      --split-mode none
+      --device CUDA0
+      --ctx-size 32786
+      --gpu-layers 49
+    ttl: 1200
   
-  qwen2.5-coder-14b-draft:
+  Qwen2.5-Coder-14B-draft:
     proxy: http://127.0.0.1:9000
     cmd: >
       ${server-default}
-      --model /models/Qwen2.5-Coder-14B-Instruct-Q4_K_L.gguf
+      --model /app/models/Qwen2.5-Coder-14B-Q4_K_M.gguf
       ${qwen2_5-coder-args}
-      --ctx-size 4096
+      --device CUDA0
+      --ctx-size 32786
       --gpu-layers 49
-      --model-draft /models/Qwen2.5-Coder-0.5B-Instruct-Q8_0.gguf
-      ${draft-model-args}
-      --ctx-size-draft 4096
-      --gpu-layers-draft 25
-      $
-    ttl: 600
+      --model-draft /app/models/Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf
+      ${qwen1_5b-draft-model-args}
+      --device-draft CUDA1
+      --ctx-size-draft 32786
+      --gpu-layers-draft 29
+    ttl: 1200
 
-  qwen2.5-coder-32b-q2:
+  Qwen2.5-Coder-14B-draft-alt:
     proxy: http://127.0.0.1:9000
     cmd: >
       ${server-default}
-      --model /models/Qwen2.5-Coder-32B-Instruct-IQ2_XS.gguf
+      --model /app/models/Qwen2.5-Coder-14B-Q4_K_M.gguf
       ${qwen2_5-coder-args}
-      --ctx-size 4096
+      --device CUDA0
+      --ctx-size 32786
+      --gpu-layers 49
+      --model-draft /app/models/Qwen2.5-Coder-0.5B-Instruct-IQ4_XS.gguf
+      ${draft-model-args}
+      --device-draft CUDA1
+      --ctx-size-draft 32786
+      --gpu-layers-draft 25
+    ttl: 1200
+
+  Qwen2.5-Coder-32B:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Qwen2.5-Coder-32B-Instruct-IQ4_XS.gguf
+      ${qwen2_5-coder-args}
+      --split-mode row
+      --tensor-split 50,50
+      --ctx-size 32786
       --gpu-layers 65
-    ttl: 600
+    ttl: 1200
 
-  qwen2.5-coder-32b-q2-draft:
+  Qwen2.5-Coder-32B-draft:
     proxy: http://127.0.0.1:9000
     cmd: >
       ${server-default}
-      --model /models/Qwen2.5-Coder-32B-Instruct-IQ2_XS.gguf
+      --model /app/models/Qwen2.5-Coder-32B-Instruct-IQ4_XS.gguf
       ${qwen2_5-coder-args}
-      --ctx-size 4096
+      --split-mode row
+      --tensor-split 50,50
+      --ctx-size 20000
       --gpu-layers 65
-      --model-draft /models/Qwen2.5-Coder-0.5B-Instruct-Q4_K_L.gguf
-      ${draft-model-args}
-      --ctx-size-draft 4096
-      --gpu-layers-draft 25
-    ttl: 600
+      --model-draft /app/models/Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf
+      ${qwen1_5b-draft-model-args}
+      --ctx-size-draft 20000
+      --gpu-layers-draft 29
+    ttl: 1200
 
-  qwen2.5-coder-32b:
+  Qwen2.5-Coder-32B-draft-alt:
     proxy: http://127.0.0.1:9000
     cmd: >
       ${server-default}
-      --model /models/Qwen2.5-Coder-32B-Instruct-Q4_K_L.gguf
+      --model /app/models/Qwen2.5-Coder-32B-Instruct-IQ4_XS.gguf
       ${qwen2_5-coder-args}
-      --ctx-size 4096
-      --gpu-layers 32
-    ttl: 600
-
-  qwen2.5-coder-32b-draft:
-    proxy: http://127.0.0.1:9000
-    cmd: >
-      ${server-default}
-      --model /models/Qwen2.5-Coder-32B-Instruct-Q4_K_L.gguf
-      ${qwen2_5-coder-args}
-      --ctx-size 4096
-      --gpu-layers 30
-      --model-draft /models/Qwen2.5-Coder-0.5B-Instruct-Q8_0.gguf
+      --split-mode row
+      --ctx-size 30000
+      --gpu-layers 65
+      --model-draft /app/models/Qwen2.5-Coder-0.5B-Instruct-IQ4_XS.gguf
       ${draft-model-args}
-      --ctx-size-draft 4096
+      --ctx-size-draft 30000
       --gpu-layers-draft 25
-    ttl: 600
+    ttl: 1200
   
-  gemma3-12b:
+  Qwen3-4B:
     proxy: http://127.0.0.1:9000
     cmd: >
       ${server-default}
-      --model /models/gemma-3-12b-it-q4_0_s.gguf
-      ${gemma3-args}
-      --ctx-size 4096
-      --gpu-layers 49
-    ttl: 600
-
-  gemma3-27b:
-    proxy: http://127.0.0.1:9000
-    cmd: >
-      ${server-default}
-      --model /models/gemma-3-27b-it-q4_0_s.gguf
-      ${gemma3-args}
-      --ctx-size 4096
+      --model /app/models/Qwen3-4B-128K-UD-Q4_K_XL.gguf
+      ${qwen3-args}
+      --split-mode none
+      --device CUDA0
+      --ctx-size 100000
       --gpu-layers 37
-    ttl: 600
+    ttl: 1200
 
-  gemma3-27b-draft:
+  Qwen3-4B-128K:
     proxy: http://127.0.0.1:9000
     cmd: >
       ${server-default}
-      --model /models/gemma-3-27b-it-q4_0_s.gguf
-      ${gemma3-args}
-      --ctx-size 4096
-      --gpu-layers 32
-      --model-draft /models/gemma-3-1b-it-q4_0_s.gguf
+      --model /app/models/Qwen3-4B-128K-UD-Q4_K_XL.gguf
+      ${qwen3-args}
+      --split-mode row
+      --tensor-split 80,20
+      --ctx-size 131072
+      --gpu-layers 37
+    ttl: 1200
+
+  Qwen3-32B:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Qwen3-32B-128K-UD-IQ3_XXS.gguf
+      ${qwen3-args}
+      --split-mode row
+      --tensor-split 55,45
+      --ctx-size 32786
+      --gpu-layers 65
+    ttl: 1200
+  
+  Qwen3-32B-draft:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Qwen3-32B-128K-UD-IQ3_XXS.gguf
+      ${qwen3-args}
+      --split-mode row
+      --tensor-split 55,45
+      --ctx-size 32786
+      --gpu-layers 65
+      --model-draft /app/models/Qwen3-0.6B-UD-Q8_K_XL.gguf
       ${draft-model-args}
-      --ctx-size-draft 4096
+      --device-draft CUDA1
+      --ctx-size-draft 32786
+      --gpu-layers-draft 29
+    ttl: 1200
+  
+  Qwen3-30B-A3B:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Qwen3-30B-A3B-128K-UD-IQ3_XXS.gguf
+      ${qwen3-args}
+      --split-mode row
+      --tensor-split 50,50
+      --gpu-layers 49
+    ttl: 1200
+  
+  Gemma3-4B:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Gemma3-4B-Instruct-Q4_0.gguf
+      ${gemma3-args}
+      --split-mode none
+      --device CUDA0
+      --ctx-size 131072
+      --gpu-layers 35
+    ttl: 1200
+  
+  Gemma3-12B:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Gemma3-12B-Instruct-Q4_0.gguf
+      ${gemma3-args}
+      --split-mode none
+      --device CUDA0
+      --ctx-size 131072
+      --gpu-layers 49
+    ttl: 1200
+  
+  Gemma3-12B-draft:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Gemma3-12B-Instruct-Q4_0.gguf
+      ${gemma3-args}
+      --device CUDA0
+      --ctx-size 131072
+      --gpu-layers 49
+      --model-draft /app/models/Gemma3-1B-Instruct-Q4_0.gguf 
+      ${draft-model-args}
+      --device-draft CUDA1
+      --ctx-size-draft 131072
       --gpu-layers-draft 27
-    ttl: 600
+    ttl: 1200
+
+  Gemma3-27B:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Gemma3-27B-Instruct-Q4_0.gguf
+      ${gemma3-args}
+      --split-mode row
+      --tensor-split 60,40
+      --ctx-size 32786
+      --gpu-layers 63
+    ttl: 1200
+
+  Gemma3-27B-draft:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Gemma3-27B-Instruct-Q4_0.gguf
+      ${gemma3-args}
+      --split-mode row
+      --tensor-split 60,40
+      --ctx-size 32786
+      --gpu-layers 63
+      --model-draft /app/models/Gemma3-1B-Instruct-Q4_0.gguf 
+      ${draft-model-args}
+      --device-draft CUDA1
+      --ctx-size-draft 32786
+      --gpu-layers-draft 27
+    ttl: 1200
