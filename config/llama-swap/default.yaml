@@ -85,7 +85,7 @@ models:
       --model-draft /app/models/Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf
       ${qwen1_5b-draft-model-args}
       --device-draft CUDA1
-      --ctx-size-draft 32768
+      --ctx-size-draft 30000
       --gpu-layers-draft 29
     ttl: 1200
 
@@ -101,7 +101,7 @@ models:
       --model-draft /app/models/Qwen2.5-Coder-0.5B-Instruct-IQ4_XS.gguf
       ${draft-model-args}
       --device-draft CUDA1
-      --ctx-size-draft 32768
+      --ctx-size-draft 30000
       --gpu-layers-draft 25
     ttl: 1200
 
