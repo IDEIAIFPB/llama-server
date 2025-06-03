@@ -64,7 +64,7 @@ for model in "${models[@]}"; do
             "messages": [ { "role": "user", "content": "hi" } ]
         }'
 
-    for lang in python typescript swift; do
+    for lang in "python" "typescript" "swift"; do
         tps=$(curl -s --fail \
             --url "$url/v1/chat/completions" \
             -H 'Content-Type: application/json' \
@@ -79,16 +79,16 @@ for model in "${models[@]}"; do
                 }' \
             | jq -r '.timings.predicted_per_second')
 
-        # Round tps to two decimal places
-        tps_rounded=$(echo "$tps" | awk '{printf "%.2f", $1}')
-
         # If curl/jq failed for this combination, bail
-        if [ $? -ne 0 ] || [ -z "$tps" ] || [ "$tps" == "null" ]; then
+        if [[ $? -ne 0 ]] || [[ -z "$tps" ]] || [[ "$tps" == "null" ]]; then
             echo "error"
             exit 1
         fi
 
-        if [ "$lang" != "swift" ]; then
+        # Round tps to two decimal places
+        tps_rounded=$(echo "$tps" | awk '{printf "%.2f", $1}')
+
+         if [[ "$lang" != "swift" ]]; then
             printf "%s tps," "$tps_rounded"
         else
             printf "%s tps\n" "$tps_rounded"
