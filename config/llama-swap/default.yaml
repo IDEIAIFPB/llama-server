@@ -40,6 +40,7 @@ macros:
     --top-k 40
     --min-p 0.01
     --samplers "top_k;top_p;min_p;temperature;dry;typ_p;xtc"
+    --reasoning-format deepseek
 
   "qwen3-args": |
     --temp 0.6
@@ -52,6 +53,7 @@ macros:
     --temp 0.8
     --top-p 0.95
     --min-p 0.00
+    --reasoning-format deepseek
 
   "llama3-args": |
     --temp 0.6
@@ -306,25 +308,26 @@ models:
       ${gemma3-args}
       --split-mode none
       --device CUDA0
-      --ctx-size 131072
+      --ctx-size 95000
       --gpu-layers 49
     ttl: 1200
   
-  Gemma3-12B-Draft-1B:
-    proxy: http://127.0.0.1:9000
-    cmd: >
-      ${server-default}
-      --model /app/models/Gemma3-12B-Instruct-UD-Q4_K_XL.gguf
-      ${gemma3-args}
-      --device CUDA0
-      --ctx-size 131072
-      --gpu-layers 49
-      --model-draft /app/models/Gemma3-1B-Instruct-UD-Q6_K_XL.gguf
-      ${draft-model-args}
-      --device-draft CUDA1
-      --ctx-size-draft 131072
-      --gpu-layers-draft 27
-    ttl: 1200
+  # https://github.com/ggml-org/llama.cpp/issues/13963
+  # Gemma3-12B-Draft-1B:
+  #   proxy: http://127.0.0.1:9000
+  #   cmd: >
+  #     ${server-default}
+  #     --model /app/models/Gemma3-12B-Instruct-UD-Q4_K_XL.gguf
+  #     ${gemma3-args}
+  #     --device CUDA0
+  #     --ctx-size 95000
+  #     --gpu-layers 49
+  #     --model-draft /app/models/Gemma3-1B-Instruct-UD-Q6_K_XL.gguf
+  #     ${draft-model-args}
+  #     --device-draft CUDA1
+  #     --ctx-size-draft 95000
+  #     --gpu-layers-draft 27
+  #   ttl: 1200
 
   Gemma3-27B-Q3:
     proxy: http://127.0.0.1:9000
@@ -337,6 +340,18 @@ models:
       --ctx-size 4096
       --gpu-layers 63
     ttl: 1200
+  
+  Gemma3-27B-Q3-128K:
+    proxy: http://127.0.0.1:9000
+    cmd: >
+      ${server-default}
+      --model /app/models/Gemma3-27B-Instruct-UD-IQ3_XXS.gguf
+      ${gemma3-args}
+      --split-mode row
+      --tensor-split 50,50
+      --ctx-size 131072
+      --gpu-layers 63
+    ttl: 1200
 
   Gemma3-27B:
     proxy: http://127.0.0.1:9000
@@ -345,8 +360,8 @@ models:
       --model /app/models/Gemma3-27B-Instruct-UD-Q4_K_XL.gguf
       ${gemma3-args}
       --split-mode row
-      --tensor-split 65,35
-      --ctx-size 32768
+      --tensor-split 50,50
+      --ctx-size 85000
       --gpu-layers 63
     ttl: 1200
 
@@ -358,25 +373,25 @@ models:
       ${gemma3-args}
       --split-mode row
       --tensor-split 50,50
-      --ctx-size 131072
+      --ctx-size 100000
       --gpu-layers 63
     ttl: 1200
 
-  Gemma3-27B-Draft-1B:
-    proxy: http://127.0.0.1:9000
-    cmd: >
-      ${server-default}
-      --model /app/models/Gemma3-27B-Instruct-UD-Q4_K_XL.gguf
-      ${gemma3-args}
-      --split-mode row
-      --tensor-split 50,50
-      --ctx-size 80000
-      --gpu-layers 63
-      --model-draft /app/models/Gemma3-1B-Instruct-UD-Q6_K_XL.gguf
-      ${draft-model-args}
-      --ctx-size-draft 80000
-      --gpu-layers-draft 27
-    ttl: 1200
+  # Gemma3-27B-Draft-1B:
+  #   proxy: http://127.0.0.1:9000
+  #   cmd: >
+  #     ${server-default}
+  #     --model /app/models/Gemma3-27B-Instruct-UD-Q4_K_XL.gguf
+  #     ${gemma3-args}
+  #     --split-mode row
+  #     --tensor-split 50,50
+  #     --ctx-size 50000
+  #     --gpu-layers 63
+  #     --model-draft /app/models/Gemma3-1B-Instruct-UD-Q6_K_XL.gguf
+  #     ${draft-model-args}
+  #     --ctx-size-draft 50000
+  #     --gpu-layers-draft 27
+  #   ttl: 1200
 
   Llama4-Scout-17B-16E:
     proxy: http://127.0.0.1:9000
@@ -386,9 +401,11 @@ models:
       ${llama4-args}
       --split-mode none
       --device CUDA0
-      --ctx-size 16384
+      --ctx-size 32000
       --gpu-layers 99
-      -ot ".ffn_.*_exps.=CPU"
+      --batch-size 2048
+      --ubatch-size 2048
+      --override-tensor "([0-9]+).ffn_.*_exps.=CPU"
     ttl: 1200
 
   Phi4:
@@ -432,9 +449,9 @@ models:
       ${server-default}
       --model /app/models/Devstral-Small-2505-UD-Q4_K_XL.gguf
       ${devstral-args}
-      --split-mode none
-      --device CUDA0
-      --ctx-size 60000
+      --split-mode row
+      --tensor-split 50,50
+      --ctx-size 70000
       --gpu-layers 99
     ttl: 1200
   
@@ -445,7 +462,7 @@ models:
       --model /app/models/Mistral-Small-3.1-24B-Instruct-2503-UD-IQ3_XXS.gguf
       --split-mode none
       --device CUDA0
-      --ctx-size 8192
+      --ctx-size 16384
       --gpu-layers 99
     ttl: 1200
   
@@ -456,7 +473,7 @@ models:
       --model /app/models/Mistral-Small-3.1-24B-Instruct-2503-UD-Q4_K_XL.gguf
       --split-mode row
       --tensor-split 50,50
-      --ctx-size 131072
+      --ctx-size 70000
       --gpu-layers 99
     ttl: 1200
   
@@ -467,6 +484,6 @@ models:
       --model /app/models/Llama-3.1-8B-Instruct-UD-Q4_K_XL.gguf
       --split-mode none
       --device CUDA0
-      --ctx-size 131072
+      --ctx-size 80000
       --gpu-layers 99
     ttl: 1200
