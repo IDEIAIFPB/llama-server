@@ -141,13 +141,14 @@ def benchmark_language(model_id, language, completions_url, prompt_template):
 
     try:
         response = requests.post(completions_url, json=payload, headers=COMMON_HEADERS)
+        time.sleep(SLEEP_AFTER_REQUEST)
         response.raise_for_status()
     except requests.exceptions.RequestException as err:
         print(
             f"Error during benchmark for model {model_id}, lang {language}: {err}",
             file=sys.stderr,
         )
-        sys.exit(1)
+        return "0.0 tps"
 
     try:
         data = response.json()
@@ -161,14 +162,14 @@ def benchmark_language(model_id, language, completions_url, prompt_template):
             f"Error: Could not decode JSON for model {model_id}, lang {language}.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        return "0.0 tps"
 
     if tps_raw is None:
         print(
             f"Error: 'timings.predicted_per_second' missing for model {model_id}, lang {language}.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        return "0.0 tps"
 
     tps_str = round_tps_value(tps_raw)
     if tps_str is None:
@@ -176,9 +177,8 @@ def benchmark_language(model_id, language, completions_url, prompt_template):
             f"Error: Invalid TPS value '{tps_raw}' for {model_id}, lang {language}.",
             file=sys.stderr,
         )
-        sys.exit(1)
+        return "0.0 tps"
 
-    time.sleep(SLEEP_AFTER_REQUEST)
     return f"{tps_str} tps"
 
 
@@ -240,6 +240,7 @@ def run_benchmark():
     prompt_template = args.prompt
 
     models = args.models if args.models else fetch_models_from_url(base_url)
+    models.sort()
     completions_endpoint = f"{base_url}/v1/chat/completions"
     csv_header = ["model"] + LANGUAGES
     all_results = []
