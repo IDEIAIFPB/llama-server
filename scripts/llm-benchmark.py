@@ -37,6 +37,7 @@ COMMON_HEADERS = {"Content-Type": "application/json"}
 TIMINGS_FIELD = ("timings", "predicted_per_second")
 SLEEP_AFTER_PRELOAD = 3
 SLEEP_AFTER_REQUEST = 3
+SLEEP_AFTER_UNLOAD = 3
 DEFAULT_PROMPT_TEMPLATE = "write a calculator class in {language}, including unittests. i want only the code and no extra explanation. consider edge cases and add comments to each method."
 
 
@@ -106,21 +107,15 @@ def build_prompt_content(language, model_id, prompt_template):
     return prompt
 
 
-def preload_model(model_id, completions_url):
+def preload_model(model_id, url):
     """
     Sends a minimal request to preload the model. Sleeps for SLEEP_AFTER_PRELOAD seconds
     after a successful preload. Exits on failure.
     """
-    preload_payload = {
-        "model": model_id,
-        "messages": [{"role": "user", "content": "hi"}],
-    }
-
     try:
-        response = requests.post(
-            completions_url, json=preload_payload, headers=COMMON_HEADERS
-        )
-        response.raise_for_status()
+        response = requests.get(f"{url}/{model_id}", headers=COMMON_HEADERS)
+        if response.status_code != 200 or response.status_code != 404:
+            response.raise_for_status()
     except requests.exceptions.RequestException as err:
         print(f"Error preloading model {model_id}: {err}", file=sys.stderr)
         sys.exit(1)
@@ -180,6 +175,16 @@ def benchmark_language(model_id, language, completions_url, prompt_template):
         return "0.0 tps"
 
     return f"{tps_str} tps"
+
+
+def unload_model(url):
+    try:
+        response = requests.get(url, headers=COMMON_HEADERS)
+        response.raise_for_status()
+    except requests.exceptions.RequestException as err:
+        print(f"Error unloading model: {err}", file=sys.stderr)
+
+    time.sleep(SLEEP_AFTER_UNLOAD)
 
 
 def write_results_to_csv(results, header, filename):
@@ -242,9 +247,11 @@ def run_benchmark():
     models = args.models if args.models else fetch_models_from_url(base_url)
     models.sort()
     completions_endpoint = f"{base_url}/v1/chat/completions"
+    load_endpoint = f"{base_url}/upstream"
+    unload_endpoint = f"{base_url}/unload"
     csv_header = ["model"] + LANGUAGES
     all_results = []
-    
+
     print(f"Used Prompt:\n{prompt_template}\n")
 
     for model_id in models:
@@ -252,7 +259,7 @@ def run_benchmark():
 
         # Preload model
         print(f"  Preloading {model_id}...", file=sys.stderr)
-        preload_model(model_id, completions_endpoint)
+        preload_model(model_id, load_endpoint)
 
         row = [model_id]
         for lang in LANGUAGES:
@@ -263,6 +270,8 @@ def run_benchmark():
             row.append(tps_result)
 
         all_results.append(row)
+        print("Unloading Model...", file=sys.stderr)
+        unload_model(unload_endpoint)
 
     # Write to CSV
     write_results_to_csv(all_results, csv_header, output_filename)
