@@ -12,6 +12,14 @@ macros:
     --flash-attn
     --no-webui
     --jinja
+  
+  "smolvlm-config": |
+    /app/llama-server
+    --threads 8
+    --prio 3
+    --port 9000
+    --flash-attn
+    --no-webui
 
   "gemma3-args": |
     --temp 1.0
@@ -107,22 +115,6 @@ models:
       --device CUDA0
       --ctx-size 32768
       --gpu-layers 49
-    ttl: 1200
-  
-  Qwen2.5-Coder-14B-Draft-0.5B-SINGLEGPU:
-    proxy: http://127.0.0.1:9000
-    cmd: >
-      ${server-default}
-      --model /app/models/Qwen2.5-Coder-14B-Instruct-IQ4_XS.gguf
-      ${qwen2_5-coder-args}
-      --device CUDA0
-      --ctx-size 20000
-      --gpu-layers 49
-      --model-draft /app/models/Qwen2.5-Coder-0.5B-Instruct-IQ4_XS.gguf
-      ${draft-model-args}
-      --device-draft CUDA0
-      --ctx-size-draft 20000
-      --gpu-layers-draft 99
     ttl: 1200
   
   Qwen2.5-Coder-14B-Draft-0.5B:
@@ -602,4 +594,17 @@ models:
       --ctx-size 24000
       --mmproj /app/models/Qwen2.5-VL-32B-Instruct.mmproj-F16.gguf
       --gpu-layers 99
+    ttl: 1200
+
+  SmolVLM-256M:
+    proxy: http://127.0.0.1:9000
+    env:
+      - "CUDA_VISIBLE_DEVICES=0"
+    cmd: >
+      ${smolvlm-config}
+      --model /app/models/SmolVLM-256M.gguf
+      --mmproj /app/models/SmolVLM-256M.mmproj.gguf
+      --ctx-size 8192
+      --gpu-layers 99
+      --chat-template smolvlm
     ttl: 1200
