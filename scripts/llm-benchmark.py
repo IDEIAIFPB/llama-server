@@ -7,7 +7,7 @@
 # provide fairly consistent logic.
 #
 # Usage example:
-#   python run_benchmark.py --url http://localhost:8080 \
+#   python3 llm-benchmark.py --url http://localhost:8080 \
 #       --models modelA modelB \
 #       --prompt "write snake game in {language}" \
 #       --output results.csv
@@ -114,7 +114,7 @@ def preload_model(model_id, url):
     """
     try:
         response = requests.get(f"{url}/{model_id}", headers=COMMON_HEADERS)
-        if response.status_code != 200 or response.status_code != 404:
+        if response.status_code not in (200, 404):
             response.raise_for_status()
     except requests.exceptions.RequestException as err:
         print(f"Error preloading model {model_id}: {err}", file=sys.stderr)
