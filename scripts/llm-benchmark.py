@@ -38,7 +38,9 @@ TIMINGS_FIELD = ("timings", "predicted_per_second")
 SLEEP_AFTER_PRELOAD = 3
 SLEEP_AFTER_REQUEST = 3
 SLEEP_AFTER_UNLOAD = 3
-DEFAULT_PROMPT_TEMPLATE = "write a calculator class in {language}, including unittests. i want only the code and no extra explanation. consider edge cases and add comments to each method."
+DEFAULT_PROMPT_TEMPLATE = """Implement a Calculator class in {language} with unit tests. \
+The class should support the following operations: add, subtract, multiply, divide, power, factorial, and fibonacci. \
+Return only the code, enclosed in triple quotes. Include comprehensive unit tests and handle edge cases with comments explaining the logic."""
 
 
 def round_tps_value(value_input):
