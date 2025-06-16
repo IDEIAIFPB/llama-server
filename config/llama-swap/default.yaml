@@ -122,7 +122,7 @@ models:
       ${draft-model-args}
       --device-draft CUDA0
       --ctx-size-draft 20000
-      --gpu-layers-draft 29
+      --gpu-layers-draft 99
     ttl: 1200
   
   Qwen2.5-Coder-14B-Draft-0.5B:
@@ -138,7 +138,7 @@ models:
       ${draft-model-args}
       --device-draft CUDA1
       --ctx-size-draft 32768
-      --gpu-layers-draft 29
+      --gpu-layers-draft 99
     ttl: 1200
 
   Qwen2.5-Coder-14B-Draft-1.5B:
@@ -154,7 +154,7 @@ models:
       ${qwen1_5b-draft-model-args}
       --device-draft CUDA1
       --ctx-size-draft 32768
-      --gpu-layers-draft 25
+      --gpu-layers-draft 99
     ttl: 1200
 
   Qwen2.5-Coder-32B:
@@ -181,7 +181,7 @@ models:
       --model-draft /app/models/Qwen2.5-Coder-0.5B-Instruct-IQ4_XS.gguf
       ${draft-model-args}
       --ctx-size-draft 30000
-      --gpu-layers-draft 25
+      --gpu-layers-draft 99
     ttl: 1200
 
   Qwen2.5-Coder-32B-Draft-1.5B:
@@ -197,7 +197,7 @@ models:
       --model-draft /app/models/Qwen2.5-Coder-1.5B-Instruct-Q6_K_L.gguf
       ${qwen1_5b-draft-model-args}
       --ctx-size-draft 20000
-      --gpu-layers-draft 29
+      --gpu-layers-draft 99
     ttl: 1200
 
   QwQ-32B:
@@ -273,7 +273,7 @@ models:
       --model-draft /app/models/Qwen3-1.7B-UD-Q4_K_XL.gguf
       ${draft-model-args}
       --ctx-size-draft 28000
-      --gpu-layers-draft 37
+      --gpu-layers-draft 99
     ttl: 1200
   
   Qwen3-32B-Q3-Draft-0.6B:
@@ -289,7 +289,7 @@ models:
       --model-draft /app/models/Qwen3-0.6B-UD-Q8_K_XL.gguf
       ${draft-model-args}
       --ctx-size-draft 28000
-      --gpu-layers-draft 29
+      --gpu-layers-draft 99
     ttl: 1200
 
   Qwen3-30B-A3B-Q3:
@@ -341,7 +341,7 @@ models:
       ${draft-model-args}
       --device-draft CUDA1
       --ctx-size-draft 95000
-      --gpu-layers-draft 27
+      --gpu-layers-draft 99
     ttl: 1200
 
   Gemma3-27B-Q3:
@@ -405,7 +405,7 @@ models:
       --model-draft /app/models/Gemma3-1B-Instruct-UD-Q6_K_XL.gguf
       ${draft-model-args}
       --ctx-size-draft 50000
-      --gpu-layers-draft 27
+      --gpu-layers-draft 99
     ttl: 1200
 
   Llama4-Scout-17B-16E:
