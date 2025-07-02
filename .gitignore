@@ -2,5 +2,7 @@
 models/*.gguf
 config/llama-swap/*
 config/diun/*
-!config/llama-swap/default.yaml
-!config/diun/default.yaml
+config/tabby-api/*
+
+!config/**/default.yml
+!config/**/default.yaml

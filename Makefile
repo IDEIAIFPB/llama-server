@@ -1,4 +1,4 @@
-PROJECT_NAME = llama-server
+PROJECT_NAME = llm-server
 
 ifeq ($(platform),cpu)
   COMPOSE_FILE = docker-compose.cpu.yml

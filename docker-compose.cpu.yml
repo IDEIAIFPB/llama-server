@@ -1,74 +1,83 @@
-name: llama-server
+name: llm-server
 
 services:
   server-swap:
-    container_name: server-swap
     image: ghcr.io/mostlygeek/llama-swap:cpu
-    build: .
+    container_name: llm-server--swap
     restart: unless-stopped
+    entrypoint: ["/bin/bash", "-c", "/app/scripts/swap-entrypoint.sh"]
     expose:
-      - ${HOST_PORT}
-
+      - 8080
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8080/"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 60s
-
-    volumes:
-      - models-data::/app/models
-      - ./scripts/docker-entrypoint.sh:/docker-entrypoint.sh:ro
-      - ${LLAMA_SWAP_CONFIG_FILE}:/app/config.yaml:ro
-
-    entrypoint: ["/bin/bash", "-c", "/docker-entrypoint.sh"]
-
-    labels:
-      - "diun.enable=true"
+    environment:
+      - DOCKER_HOST=unix:///var/run/docker.sock
     networks:
-      - llama-server-network
+      - llm-server-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - entrypoint-scripts:/app/scripts:ro
+      - ${LLAMA_SWAP_CONFIG_FILE}:/app/config.yaml:ro
+      - gguf-models:/app/models/gguf:ro
+      - exl2-models:/app/models/exl2:ro
+      - awq-models:/app/models/awq:ro
+      - tabby-config:/app/tabby-api:ro
 
   nginx:
     image: nginx:alpine
-    container_name: llama-nginx
+    container_name: llm-server-nginx
     restart: unless-stopped
     ports:
       - "${SERVER_PORT}:80"
+    depends_on:
+      - server-swap
+    networks:
+      - llm-server-network
     volumes:
       - ./config/nginx/default.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - server-swap
-    networks:
-      - llama-server-network
-
-  diun:
-    image: crazymax/diun:latest
-    container_name: diun
-    restart: unless-stopped
-    command: serve
-    volumes:
-      - diun-data:/data
-      - "./config/diun/default.yml:/diun.yml:ro"
-      - "/var/run/docker.sock:/var/run/docker.sock"
-    environment:
-      - "TZ=Europe/Paris"
-      - "LOG_LEVEL=info"
-      - "LOG_JSON=false"
-    networks:
-      - llama-server-network
-    depends_on:
-      - server-swap
 
 volumes:
-  models-data:
+  gguf-models:
     driver: local
     driver_opts:
       type: none
       o: bind
-      device: ./models
-  diun-data:
+      device: "${GGUF_MODELS_PATH}"
+
+  exl2-models:
     driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${EXL2_MODELS_PATH}"
+
+  awq-models:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${AWQ_MODELS_PATH}"
+
+  tabby-config:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: "${TABBY_CONFIG_PATH}"
+  
+  entrypoint-scripts:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./scripts
 
 networks:
-  llama-server-network:
+  llm-server-network:
+    name: llm-server-network
     driver: bridge
